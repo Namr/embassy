@@ -601,9 +601,23 @@ impl<'d> SpiSlave<'d, Async> {
             w.set_cstart(true);
         });
 
+        #[cfg(any(spi_v3, spi_v4, spi_v5))]
+        if self.cs.is_none() {
+            self.info.regs.cr1().modify(|w| {
+                w.set_ssi(true);
+            });
+        }
+
         rx_f.await;
 
         finish_dma(self.info.regs);
+
+        #[cfg(any(spi_v3, spi_v4, spi_v5))]
+        if self.cs.is_none() {
+            self.info.regs.cr1().modify(|w| {
+                w.set_ssi(false);
+            });
+        }
 
         Ok(())
     }
@@ -645,9 +659,23 @@ impl<'d> SpiSlave<'d, Async> {
             w.set_cstart(true);
         });
 
+        #[cfg(any(spi_v3, spi_v4, spi_v5))]
+        if self.cs.is_none() {
+            self.info.regs.cr1().modify(|w| {
+                w.set_ssi(true);
+            });
+        }
+        
         join(tx_f, rx_f).await;
 
         finish_dma(self.info.regs);
+
+        #[cfg(any(spi_v3, spi_v4, spi_v5))]
+        if self.cs.is_none() {
+            self.info.regs.cr1().modify(|w| {
+                w.set_ssi(false);
+            });
+        }
 
         Ok(())
     }
