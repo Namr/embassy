@@ -12,8 +12,6 @@ macro_rules! assert {
         {
             #[cfg(not(feature = "defmt"))]
             ::core::assert!($($x)*);
-            #[cfg(feature = "defmt")]
-            ::defmt::assert!($($x)*);
         }
     };
 }
